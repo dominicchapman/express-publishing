@@ -20,4 +20,20 @@ var auth = require('../auth');
 			IF valid JWT token present, update user's information.
 */
 
+
+// allow users to sign up for accounts.
+router.post('/users', function(req, res, next){
+	var user = new User();
+
+	user.username = req.body.user.username;
+	user.email = req.body.user.email;
+	user.setPassword(req.body.user.password);
+
+	// when user.save() called, promise is returned for us to handle.
+	user.save().then(function() {
+		// if resolved, user successfully saved, so return user's auth JSON.
+		return res.json({user: user.toAuthJSON()});
+	}).catch(next); // if promise rejected, catch passes error to handler.
+});
+
 module.exports = router;
