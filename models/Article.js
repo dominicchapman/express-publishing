@@ -30,4 +30,13 @@ ArticleSchema.methods.slugify = function() {
 	this.slug = slug(this.title) + '-' + (Math.random() * Math.pow(36, 6) | 0).toString(36);
 };
 
+// we generate the slug before Mongoose tires to validate to prevent otherwise saving will fail (there will be no slug, which is a required field).
+ArticleSchema.pre('validate', function(next) {
+	if(!this.slug) {
+		this.slugify();
+	}
+
+	next();
+});
+
 mongoose.model('Article', ArticleSchema);
