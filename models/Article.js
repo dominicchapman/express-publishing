@@ -24,4 +24,10 @@ var ArticleSchema = new mongoose.Schema({
 
 ArticleSchema.plugin(uniqueValidator, {message: 'is already taken'});
 
+// method for generating unique article slugs.
+ArticleSchema.methods.slugify = function() {
+	// to ensure slug is unique, we generate and prepend a random 6 character string.
+	this.slug = slug(this.title) + '-' + (Math.random() * Math.pow(36, 6) | 0).toString(36);
+};
+
 mongoose.model('Article', ArticleSchema);
