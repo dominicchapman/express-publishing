@@ -39,4 +39,19 @@ ArticleSchema.pre('validate', function(next) {
 	next();
 });
 
+// method for returning proper JSON output of an article for the API endpoints to return.
+ArticleSchema.methods.toJSONFor = function(user) {
+	return {
+		slug: this.slug,
+		title: this.title,
+		description: this.description,
+		body: this.body,
+		createdAt: this.createdAt,
+		updatedAt: this.updatedAt,
+		tagList: this.tagList,
+		favoritesCount: this.favoritesCount,
+		author: this.author.toProfileJSONFor(user) // automatically creates proper JSON data for author field.
+	};
+};
+
 mongoose.model('Article', ArticleSchema);
