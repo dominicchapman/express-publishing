@@ -21,7 +21,7 @@ var auth = require('../auth');
 */
 
 
-// allow users to sign up for accounts.
+// allow users to sign up for account.
 router.post('/users', function(req, res, next){
 	var user = new User();
 
@@ -35,5 +35,33 @@ router.post('/users', function(req, res, next){
 		return res.json({user: user.toAuthJSON()});
 	}).catch(next); // if promise rejected, catch passes error to handler.
 });
+
+//allow users to log in to their account.
+router.post('/users/login', function(req, res, next) {
+	// is email provided by front-end? If not, respond with 422.
+	if(!req.body.user.email) {
+		return res.status(422).json({errors: {email: "can't be blank"}});
+	}
+
+	// is password provided by front-end? If not, respond with 422.
+	if(!req.body.user.password) {
+		return res.status(422).json({errors: {password: "can't be blank"}});
+	}
+
+	// pass incoming request to passport.authenticate using local strategy we specified in config/passport.js.
+	// since we use JWTs for auth (not sessions), we specify {session: false} to prevent Passport's session serialization.
+	passport.authenticate('local', {session: false}, function(err, user, info){
+		if(err){ return next(err); }
+
+		// define callback for passport strategy, responding to client depending on auth success.
+		if(user) {
+			user.token = user.generateJWT();
+			return res.json({user: user.toAuthJSON()});
+		} else {
+			return res.status(422).json(info);
+		}
+	})(req, res, next);
+});
+
 
 module.exports = router;
