@@ -25,7 +25,16 @@ router.param('username', function(req, res, next, username){
 
 // endpoint to fetch user's profile based on username using the parameter middleware.
 router.get('/:username', auth.optional, function(req, res, next){
-	return res.json({profile: req.profile.toProfileJSONFor()});
+	// look up current user by ID from the JWT payload and pass along the user object to profile.toProfileJSONFor if it exists.
+	if(req.payload) {
+		User.findById(req.payload.id).then(function(user) {
+			if(!user){ return res.json({profile: req.profile.toProfileJSONFor(false)}); }
+			// if user object does not exist, pass along false to indicate no user is currently logged in.
+			return res.json({profile: req.profile.toProfileJSONFor(user)});
+		});
+	} else {
+		return res.json({profile: req.profile.toProfileJSONFor(false)});
+	}
 });
 
 module.exports = router;

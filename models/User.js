@@ -53,7 +53,7 @@ UserSchema.methods.toAuthJSON = function() {
 };
 
 // method to return public profile data.
-UserSchema.methods.toProfileJSONFor = function() {
+UserSchema.methods.toProfileJSONFor = function(user) {
 	return {
 		username: this.username,
 		bio: this.bio,
