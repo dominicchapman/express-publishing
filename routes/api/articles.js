@@ -90,4 +90,19 @@ router.put('/:article', auth.required, function(req, res, next) {
 	});
 });
 
+// endpoint for deleting articles.
+router.delete('/:article', auth.required, function(req, res, next) {
+	User.findById(req.payload.id).then(function() {
+		// ensure user currently logged in is author of the article.
+		if(req.article.author._id.toString() === req.payload.id.toString()) {
+			// delete the article and send status code 204 (request was successful and returns no content).
+			return req.article.remove().then(function() {
+				return res.sendStatus(204);
+			});
+		} else {
+			return res.sendStatus(403);
+		}
+	});
+});
+
 module.exports = router;
