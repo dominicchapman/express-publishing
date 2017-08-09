@@ -41,7 +41,7 @@ UserSchema.methods.generateJWT = function() {
 	}, secret);
 };
 
-// JSON representation of user passed to front-end during authentiction .
+// JSON representation of user passed to front-end during authentiction.
 UserSchema.methods.toAuthJSON = function() {
 	return {
 		username: this.username,
@@ -51,5 +51,15 @@ UserSchema.methods.toAuthJSON = function() {
 		image: this.image
 	};
 };
+
+// method to return public profile data.
+UserSchema.methods.toProfileJSONFor = function() {
+	return {
+		username: this.username,
+		bio: this.bio,
+		image: this.image || 'https://abs.twimg.com/sticky/default_profile_images/default_profile_400x400.png',
+		following: false // to be implemented.
+	}
+}
 
 mongoose.model('User', UserSchema); // registers schema with mongoose; can be accessed by calling mongoose.model('User').
