@@ -1,6 +1,7 @@
 var router = require('express').Router();
 
 router.use('/', require('./users'));
+router.use('/profiles', require('./profiles'));
 
 // middleware function to convert mongoose validation errors to consumable messages on front-end.
 router.use(function(err, req, res, next) { // middleware with four arguments treated as error handler
