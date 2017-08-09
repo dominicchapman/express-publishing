@@ -63,5 +63,15 @@ router.post('/users/login', function(req, res, next) {
 	})(req, res, next);
 });
 
+// endpoint to get current user's auth payload from their token
+router.get('/user', auth.required, function(req, res, next) {
+	User.findById(req.payload.id).then(function(user) {
+		// if User.findById() promise not rejected, but user retrieved is falsey, user id in JWT payload is invalid => 401 (user removed from db).
+		if(!user){ return res.sendStatus(401); }
+
+		return res.json({user: user.toAuthJSON()});
+	}).catch(next);
+});
+
 
 module.exports = router;
