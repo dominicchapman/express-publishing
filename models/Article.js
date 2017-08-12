@@ -1,6 +1,7 @@
 var mongoose = require('mongoose');
 var uniqueValidator = require('mongoose-unique-validator');
 var slug = require('slug'); // package used to auto-create URL slugs
+var User = mongoose.model('User');
 
 /*
 	– slug: generated string unique to each article used for database lookups;
@@ -53,6 +54,18 @@ ArticleSchema.methods.toJSONFor = function(user) {
 		favoritesCount: this.favoritesCount,
 		author: this.author.toProfileJSONFor(user) // automatically creates proper JSON data for author field.
 	};
+};
+
+// method to update an article's favorite count.
+ArticleSchema.methods.updateFavoriteCount = function() {
+	var article = this;
+
+	// count how many user's have this article ID in their favorites array and set favorites count on the article model accordingly. 
+	return User.count({favorites: {$in: [article._id]}}).then(function(count) {
+		article.favoritesCount = count;
+
+		return article.save();
+	});
 };
 
 mongoose.model('Article', ArticleSchema);
