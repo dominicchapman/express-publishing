@@ -10,6 +10,7 @@ var UserSchema = new mongoose.Schema({
 	email: {type: String, lowercase: true, unique: true, required: [true, 'cannot be blank'], match: [/\S+@\S+\.\S+/, 'is invalid'], index: true},
 	bio: String,
 	image: String,
+	favorites: [{type: mongoose.Schema.Types.ObjectId, ref: 'Article'}], // we store all article IDs a user has favorited in an array.
 	hash: String,
 	salt: String
 }, {timestamps: true}); // creates auto-updating createdAt and updatedAt fields on models that contain timestamps.
@@ -60,6 +61,31 @@ UserSchema.methods.toProfileJSONFor = function(user) {
 		image: this.image || 'https://abs.twimg.com/sticky/default_profile_images/default_profile_400x400.png',
 		following: false // to be implemented.
 	}
-}
+};
+
+// method to add article ID to user's favorites array.
+UserSchema.methods.favorite = function(id) { 
+	// if article ID not found in the favorites array.
+	if(this.favorites.indexOf(id) === -1) {
+		// add article ID to end of the favorites array.
+		this.favorites.push(id);
+	}
+
+	return this.save();
+};
+
+// method to remove article ID from user's favorites array (unfavorite).
+UserSchema.methods.unfavorite = function(id) {
+	this.favorites.remove(id);
+	return this.save();
+};
+
+// method to show if a user has favorited an article.
+UserSchema.methods.isFavorite = function(id) {
+	// some method tests whether at-least one element in an array passes the test implemented by the provided function.
+	return this.favorites.some(function(favoriteId) {
+		return favoriteId.toString() === id.toString();
+	});
+};
 
 mongoose.model('User', UserSchema); // registers schema with mongoose; can be accessed by calling mongoose.model('User').
