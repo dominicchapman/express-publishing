@@ -49,6 +49,7 @@ ArticleSchema.methods.toJSONFor = function(user) {
 		createdAt: this.createdAt,
 		updatedAt: this.updatedAt,
 		tagList: this.tagList,
+		favorited: user ? user.isFavorite(this._id) : false, // asks if currently logged in user has favorited this article.
 		favoritesCount: this.favoritesCount,
 		author: this.author.toProfileJSONFor(user) // automatically creates proper JSON data for author field.
 	};
