@@ -105,4 +105,35 @@ router.delete('/:article', auth.required, function(req, res, next) {
 	});
 });
 
+
+// endpoint for favoriting an article.
+router.post('/:article/favorite', auth.required, function(req, res, next) {
+	var articleId = req.article._id;
+
+	User.findById(req.payload.id).then(function(user) {
+		if(!user) { return res.sendStatus(401); }
+
+		return user.favorite(articleId).then(function() {
+			return req.article.updateFavoriteCount().then(function(article) {
+				return res.json({article: article.toJSONFor(user)});
+			});
+		});
+	}).catch(next);
+});
+
+// endpoint for unfavoriting an article.
+router.delete('/:article/favorite', auth.required, function(req, res, next) {
+	var articleId = req.article._id;
+
+	User.findById(req.payload.id).then(function(user) {
+		if(!user) { return res.sendStatus(401); }
+
+		return user.unfavorite(articleId).then(function() {
+			return req.article.updateFavoriteCount().then(function(article) {
+				return res.json({article: article.toJSONFor(user)});
+			});
+		});
+	}).catch(next);
+});
+
 module.exports = router;
