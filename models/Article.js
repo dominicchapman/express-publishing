@@ -49,6 +49,7 @@ ArticleSchema.methods.toJSONFor = function(user) {
 		body: this.body,
 		createdAt: this.createdAt,
 		updatedAt: this.updatedAt,
+		comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }], // to associate a comment with a specific article, we add an array of comment IDs.
 		tagList: this.tagList,
 		favorited: user ? user.isFavorite(this._id) : false, // asks if currently logged in user has favorited this article.
 		favoritesCount: this.favoritesCount,
