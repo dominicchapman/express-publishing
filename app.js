@@ -41,6 +41,7 @@ if(isProduction){
 // models included before routes so that routes can use models.
 require('./models/User'); 
 require('./models/Article');
+require('./models/Comment');
 require('./config/passport');
 
 app.use(require('./routes'));
