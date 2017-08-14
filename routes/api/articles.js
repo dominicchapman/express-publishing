@@ -19,6 +19,10 @@ var auth = require('../auth');
 	
 		In this case, when a URL definition contains :article, Express will look for a router.param that specifies 'article',
 		and our corresponding function will set the corresponding article's data to req.article for the other routes to use. 
+
+	
+	When we work with relational data in Mongoose (or other NoSQL databases), we need to delete not only the 
+	primary data (a comment, say), but also any references to that data (e.g. a comment ID). 
 */
 
 // endpoint for creating articles.
@@ -175,6 +179,36 @@ router.get('/:article/comments', auth.optional, function(req, res, next) {
 			})});
 		});
 	}).catch(next);
+});
+
+
+// router param middleware to resolve the /:comment in our URL.
+router.param('comment', function(req, res, next, id) {
+	Comment.findById(id).then(function(comment) {
+		if(!comment) { return res.sendStatus(404); }
+
+		req.comment = comment;
+
+		return next();
+	}).catch(next);
+});
+
+// router.delete middleware for deleting comments.
+router.delete('/:article/comments/:comment', auth.required, function(req, res, next) {
+	// check that currently logged in user is the comment author.
+	if(req.comment.author.toString() === req.payload.id.toString()) {
+		// remove comment ID from the article model.
+		req.article.comments.remove(req.comment._id);
+		// save the new article data.
+		req.article.save()
+			// delete the actual comment from the database.
+			.then(Comment.find({_id: req.comment._id}).remove().exec())
+			.then(function() {
+				res.sendStatus(204);
+			});
+	} else {
+		res.sendStatus(403);
+	}
 });
 
 module.exports = router;
