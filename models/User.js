@@ -89,4 +89,15 @@ UserSchema.methods.isFavorite = function(id) {
 	});
 };
 
+// method for following another user.
+UserSchema.methods.follow = function(id) {
+	// if the user ID is not found in the following array.
+	if(this.following.indexOf(id) === -1) {
+		// add to the following array.
+		this.following.push(id);
+	}
+
+	return this.save();
+};
+
 mongoose.model('User', UserSchema); // registers schema with mongoose; can be accessed by calling mongoose.model('User').
