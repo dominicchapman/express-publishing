@@ -11,6 +11,7 @@ var UserSchema = new mongoose.Schema({
 	bio: String,
 	image: String,
 	favorites: [{type: mongoose.Schema.Types.ObjectId, ref: 'Article'}], // we store all article IDs a user has favorited in an array.
+	following: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}], // we store all user IDs a user is following in an array.
 	hash: String,
 	salt: String
 }, {timestamps: true}); // creates auto-updating createdAt and updatedAt fields on models that contain timestamps.
