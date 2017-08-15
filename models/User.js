@@ -100,4 +100,10 @@ UserSchema.methods.follow = function(id) {
 	return this.save();
 };
 
+// method for unfollowing another user.
+UserSchema.methods.unfollow = function(id) {
+	this.following.remove(id);
+	return this.save();
+};
+
 mongoose.model('User', UserSchema); // registers schema with mongoose; can be accessed by calling mongoose.model('User').
