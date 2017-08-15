@@ -106,4 +106,11 @@ UserSchema.methods.unfollow = function(id) {
 	return this.save();
 };
 
+// method to determine if a user is following another user.
+UserSchema.methods.isFollowing = function(id) {
+	return this.following.some(function(followId) {
+		return followId.toString() === id.toString();
+	});
+};
+
 mongoose.model('User', UserSchema); // registers schema with mongoose; can be accessed by calling mongoose.model('User').
