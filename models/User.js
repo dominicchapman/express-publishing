@@ -60,8 +60,8 @@ UserSchema.methods.toProfileJSONFor = function(user) {
 		username: this.username,
 		bio: this.bio,
 		image: this.image || 'https://abs.twimg.com/sticky/default_profile_images/default_profile_400x400.png',
-		following: false // to be implemented.
-	}
+		following: user ? user.isFollowing(this._id) : false
+	};
 };
 
 // method to add article ID to user's favorites array.
