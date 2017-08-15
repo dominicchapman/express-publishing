@@ -19,6 +19,7 @@ var ArticleSchema = new mongoose.Schema({
 	description: String,
 	body: String,
 	favoritesCount: {type: Number, default: 0},
+	comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }], // to associate a comment with a specific article, we add an array of comment IDs.
 	tagList: [{type: String}],
 	author: { type: mongoose.Schema.Types.ObjectId, ref: 'User'}
 }, {timestamps: true});
@@ -49,7 +50,6 @@ ArticleSchema.methods.toJSONFor = function(user) {
 		body: this.body,
 		createdAt: this.createdAt,
 		updatedAt: this.updatedAt,
-		comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }], // to associate a comment with a specific article, we add an array of comment IDs.
 		tagList: this.tagList,
 		favorited: user ? user.isFavorite(this._id) : false, // asks if currently logged in user has favorited this article.
 		favoritesCount: this.favoritesCount,
