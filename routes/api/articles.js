@@ -212,4 +212,62 @@ router.delete('/:article/comments/:comment', auth.required, function(req, res, n
 	}
 });
 
+/* 
+	We need to be able to list articles in a couple of ways:
+		1. Retrieve articles by tag, author, favoriter with authentication optional;
+		2. Return articles by followed users in separate feed with authentication required.
+
+	We'll use queryable endpoints, supporting options through query strings in the URL (e.g. /api/articles?tag=cats).
+	We'll implement the following parameters:
+		– limit: the number of articles to be returned (defaults to zero);
+		– offset: the number of articles to skip, which is useful for retreiving different pages of articles (defaults to zero);
+		– tag: query articles that include this tag;
+		– author: query articles authored by this username;
+		– favorited: query articles favorited by this username.
+*/
+
+// endpoint to list all articles.
+router.get('/', auth.optional, function(req, res, next) {
+	var query = {};
+	var limit = 20;
+	var offset = 0;
+
+	// add option to filter articles by limit.
+	if(typeof req.query.limit !== 'undefined') {
+		limit = req.query.limit;
+	}
+
+	// add option to filter articles by offset.
+	if(typeof req.query.offset !== 'undefined') {
+		offset = req.query.offset;
+	}
+
+	// add option to filter articles by tags.
+	if(typeof req.query.tag !== 'undefined') {
+		query.tagList = {"$in" : [req.query.tag]};
+	}
+
+	return Promise.all([
+		Articles.find(query)
+			.limit(Number(limit))
+			.skip(Number(offset))
+			.sort({createdAt: 'desc'})
+			.populate('author')
+			.exec(),
+		Articles.count(query).exec(),
+		req.payload ? User.findById(req.payload.id) : null, // when signed out, last value in array of promises passed to Promise.all() is null, which will resolve the last value to null in the array passed to our .then handler.
+	]).then(function(results) {
+		var articles = results[0];
+		var articlesCount = results[1];
+		var user = results[2];
+
+		return res.json({
+			articles: articles.map(function(article) {
+				return article.toJSONFor(user);
+			}),
+			articlesCount: articlesCount
+		});
+	}).catch(next);
+});
+
 module.exports = router;
